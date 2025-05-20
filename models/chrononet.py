@@ -53,7 +53,6 @@ class ChronoNet(nn.Module):
         self.incept3 = InceptionBlock1D(self.conv_channels, out_channels=conv_out_channels)
         self.incept4 = InceptionBlock1D(self.conv_channels, out_channels=conv_out_channels)
         self.incept5 = InceptionBlock1D(self.conv_channels, out_channels=conv_out_channels)
-        self.incept6 = InceptionBlock1D(self.conv_channels, out_channels=conv_out_channels)
 
         self.gru1 = nn.GRU(self.conv_channels, gru_hidden_size, batch_first=True, bidirectional=False)
         self.gru2 = nn.GRU(gru_hidden_size, gru_hidden_size, batch_first=True, bidirectional=False)
@@ -72,7 +71,7 @@ class ChronoNet(nn.Module):
             nn.Dropout(0.1),
             nn.Linear(64, 20),
             nn.ReLU(inplace=True),
-            nn.Dropout(0.1),
+            nn.Dropout(0.3),
             nn.Linear(20, 1 if is_binary else num_classes)
         )
 
@@ -83,7 +82,6 @@ class ChronoNet(nn.Module):
         x = self.incept3(x)
         x = self.incept4(x)
         x = self.incept5(x)
-        x = self.incept6(x)
         # x = F.dropout(x, 0.1)
 
         x = x.permute(0, 2, 1)  # [B, T, C] for GRU
@@ -108,10 +106,10 @@ class ChronoNet(nn.Module):
         
         logits = self.fc(out6)
         # Ensure shape compatibility
-        if self.is_binary:
-            return logits.squeeze(dim=1)  # shape: [B]
-        else:
-            return logits  # shape: [B, num_classes]
+        # if self.is_binary:
+        #     return logits.squeeze(dim=1)  # shape: [B]
+        # else:
+        return logits  # shape: [B, num_classes]
     
     def save(self, name=None):
         """

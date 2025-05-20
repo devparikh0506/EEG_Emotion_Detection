@@ -13,8 +13,7 @@ def train_one_epoch(model, dataloader, optimizer, loss_fn, device):
 
     for x_batch, y_batch, _ in tqdm_notebook(dataloader, desc="Training...", leave=False):
         x_batch = x_batch.to(device)
-        y_batch = y_batch.to(device)
-
+        y_batch = y_batch.to(device).float().unsqueeze(1) if model.is_binary else y_batch
         optimizer.zero_grad()
         outputs = model(x_batch)  # shape: [B]
         loss = loss_fn(outputs, y_batch)
@@ -45,7 +44,7 @@ def validate(model, dataloader, loss_fn, device):
     with torch.no_grad():
         for x_batch, y_batch, _ in tqdm_notebook(dataloader, desc="Validating..", leave=False):
             x_batch = x_batch.to(device)
-            y_batch = y_batch.to(device)
+            y_batch = y_batch.to(device).float().unsqueeze(1) if model.is_binary else y_batch
 
             outputs = model(x_batch)
             loss = loss_fn(outputs, y_batch)
